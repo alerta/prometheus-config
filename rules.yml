@@ -1,0 +1,137 @@
+
+#
+# Prometheus Alerts
+#
+
+ALERT PromIdxQLen
+  IF prometheus_local_storage_indexing_queue_length > 0
+  FOR 5m
+  LABELS {
+    severity = "major",
+    value = "{{$value}}"
+  }
+  ANNOTATIONS {
+    summary = "Prometheus indexing queue length is non-zero",
+    description = "Prometheus indexing queue length is {{$value}}."
+  }
+
+ALERT PromIdxQLen
+  IF prometheus_local_storage_indexing_queue_length == 0
+  FOR 1m
+  LABELS {
+    severity = "normal",
+    value = "{{$value}}"
+  }
+  ANNOTATIONS {
+    summary = "Prometheus indexing queue length is OK",
+    description = "Prometheus indexing queue length is OK."
+  }
+
+#
+# Node Exporter Alerts
+#
+
+ALERT SystemStart
+  IF round(node_time - process_start_time_seconds) < 7200
+  LABELS {
+    service = "Platform",
+    severity = "informational",
+    value = "{{humanizeDuration $value}}"
+  }
+  ANNOTATIONS {
+    description = "System started {{humanizeDuration $value}} ago."
+  }
+
+ALERT SystemDown
+  IF up == 0
+  FOR 2m
+  LABELS {
+    service = "Platform",
+    severity = "critical",
+    value = "0=DOWN",
+    correlate = "SystemUp"
+  }
+  ANNOTATIONS {
+    summary = "System is not responding",
+    description = "System {{$labels.instance}} is not responding to Prometheus."
+  }
+
+ALERT SystemUp
+  IF up == 1
+  #FOR 2m
+  LABELS {
+    service = "Platform",
+    severity = "normal",
+    value = "1=UP",
+    correlate = "SystemDown"
+  }
+  ANNOTATIONS {
+    summary = "System is responding",
+    description = "System {{$labels.instance}} is responding to Prometheus."
+  }
+
+ALERT MemoryUtil
+  IF round(node_memory_MemFree / node_memory_MemTotal * 100) > 90
+  LABELS {
+    service = "Platform",
+    severity = "minor",
+    value = "{{$value}}%"
+  }
+  ANNOTATIONS {
+    summary = "Memory utilisation is high",
+    description = "Memory utilisation of {{$value}}% is above threshold of 90%."
+  }
+
+ALERT MemoryUtil
+  IF round(node_memory_MemFree / node_memory_MemTotal * 100) < 90
+  LABELS {
+    service = "Platform",
+    severity = "normal",
+    value = "{{$value}}%"
+  }
+  ANNOTATIONS {
+    summary = "Memory utilisation is OK",
+    description = "Memory utilisation of {{$value}}% is below threshold of 90%."
+  }
+
+ALERT InterruptRate
+  IF round(rate(node_intr[1m])) > 10
+  LABELS {
+    service = "Platform",
+    severity = "minor",
+    value = "{{$value}} intr/s"
+  }
+  ANNOTATIONS {
+    summary = "Interrupt rate is high",
+    description = "Interrupt rate of {{$value}} intr/s is above threshold of 10 intr/s."
+  }
+
+#
+# Collectd Exporter Alerts
+#
+
+ALERT HttpRequestsHigh
+  IF round(rate(collectd_apache_apache_requests[1m])*60) > 12
+  LABELS {
+    service = "Web",
+    severity = "major",
+    value = "{{$value}} req/s",
+    correlate = "HttpRequestsOk"
+  }
+  ANNOTATIONS {
+    summary = "Apache request rate high",
+    description = "Apache request rate of {{$value}} requests/sec is above threshold of 12"
+  }
+
+ALERT HttpRequestsOk
+  IF round(rate(collectd_apache_apache_requests[1m])*60) < 10
+  LABELS {
+    service = "Web",
+    severity = "normal",
+    value = "{{$value}} req/s",
+    correlate = "HttpRequestsHigh"
+  }
+  ANNOTATIONS {
+    summary = "Apache request rate ok",
+    description = "Apache request rate of {{$value}} requests/sec is below threshold of 10"
+  }

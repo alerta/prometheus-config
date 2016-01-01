@@ -1,0 +1,20 @@
+
+ALERT HighErrorRate
+  IF sum by(job,path)(rate(http_requests_total{status=~"5.."}[5m])) /
+     sum by(job,path)(rate(http_requests_total[5m]))*100 > 1
+  FOR 10m
+  WITH {}
+  ANNOTATIONS {
+    summary = "high number of 5xx errors",
+    description = "{{$labels.job}} has {{$value}}% 5xx errors on {{$labels.path}}"
+  }
+
+ALERT DailyTest
+  IF vector(1) > 0
+  FOR 1m
+  WITH {}
+  ANNOTATIONS {
+    summary = "daily alert test",
+    description = "daily alert test"
+  }
+

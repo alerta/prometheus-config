@@ -1,0 +1,33 @@
+
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+  # scrape_timeout is set to the global default (10s).
+
+  external_labels:
+    environment: "Production"
+    service: "Prometheus"
+    region: "eu-west-1"
+
+scrape_configs:
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+  - job_name: 'prometheus'
+
+    scrape_interval: 5s
+    scrape_timeout: 10s
+
+    target_groups:
+      - targets: ['localhost:9090']
+
+  - job_name: 'collectd'
+    honor_labels: true
+    target_groups:
+      - targets: ['localhost:9103']
+
+  - job_name: 'node'
+    target_groups:
+      - targets: ['localhost:9100']
+
+rule_files:
+  - rules.yml
