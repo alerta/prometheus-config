@@ -62,7 +62,6 @@ Prometheus labels marked with a star (*) are built-in and assignment to Alerta a
 Much more value can be obtained from the Alerta console if reasonable values are assigned where possible. This is demonstrated in the example alert rules below which get increasingly informative.
 
 Basic Example
-~~~~~~~~~~~~~
 
 The example rule below is the absolute minimum required to trigger an alert and a corresponding "clear" alert for forwarding to Alerta.
 
