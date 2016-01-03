@@ -1,7 +1,15 @@
 Prometheus Config for Alerta
 ============================
 
-This shows how to configure [Prometheus](http://prometheus.io/) to use Alerta as the alert console instead of Prometheus [Alertmanager](http://prometheus.io/docs/alerting/alertmanager/).
+Consolidate alerts from [Prometheus](http://prometheus.io/) and other tools (like Nagios or Zabbix) into a single "at-a-glance" console.
+
+Transform this ...
+
+![alertmanager](/docs/images/prometheus-alertmanager.png?raw=true)
+
+Into this ...
+
+![alerta](/docs/images/prometheus-alerta.png?raw=true)
 
 Installation
 ------------
@@ -14,6 +22,9 @@ Install the following:
   
 Configuration
 -------------
+
+This integration takes advantage of the same Prometheus API used to send alerts to Prometheus [Alertmanager](http://prometheus.io/docs/alerting/alertmanager/).
+
 
 Alerta
 ------
