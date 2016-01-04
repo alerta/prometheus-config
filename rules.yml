@@ -135,3 +135,44 @@ ALERT HttpRequestsOk
     summary = "Apache request rate ok",
     description = "Apache request rate of {{$value}} requests/sec is below threshold of 10"
   }
+
+#
+# Ganglia Alerts
+#
+
+ALERT SystemLoad
+  IF ganglia_load_five > (ganglia_cpu_num * 10)
+  LABELS {
+    service = "Platform",
+    severity = "major",
+    value = "{{$value}}",
+    group = "OS"
+  }
+  ANNOTATIONS {
+    description = "System 5-min load is very high."
+  }
+
+ALERT SystemLoad
+  IF ganglia_load_five < (ganglia_cpu_num * 10) AND
+     ganglia_load_five > (ganglia_cpu_num * 6)
+  LABELS {
+    service = "Platform",
+    severity = "warning",
+    value = "{{$value}}",
+    group = "OS"
+  }
+  ANNOTATIONS {
+    description = "System 5-min load average is high."
+  }
+
+ALERT SystemLoad
+  IF ganglia_load_five < (ganglia_cpu_num * 6)
+  LABELS {
+    service = "Platform",
+    severity = "normal",
+    value = "{{$value}}",
+    group = "OS"
+  }
+  ANNOTATIONS {
+    description = "System 5-min load is OK."
+  }
