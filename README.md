@@ -19,7 +19,7 @@ Install the following:
   * Prometheus (without `alertmanager`)
   * Alerta
   * Apache web server
-  
+
 Configuration
 -------------
 
@@ -175,6 +175,13 @@ Example Prometheus Alert
 
 Example Alerta
 
+References
+----------
+
+* Kubernetes [namespaces](https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/namespaces.md)
+* Kubernetes [labels](https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/labels.md)
+* Kubernetes [annotations](https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/annotations.md)
+* Kubernetes [metadata](https://github.com/kubernetes/kubernetes/blob/master/docs/devel/api-conventions.md#metadata)
 
 License
 -------

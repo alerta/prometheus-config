@@ -176,3 +176,13 @@ ALERT SystemLoad
   ANNOTATIONS {
     description = "System 5-min load is OK."
   }
+
+ALERT SystemLoadTest1
+  IF ganglia_load_five < (ganglia_cpu_num * 6) AND
+     ganglia_load_five > (ganglia_cpu_num * 0)
+  LABELS {
+    severity = "warning"
+  }
+  ANNOTATIONS {
+    description = "System 5-min load average of {{$value}} is high."
+  }
