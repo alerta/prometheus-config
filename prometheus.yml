@@ -20,6 +20,12 @@ scrape_configs:
     target_groups:
       - targets: ['localhost:9090']
 
+  - job_name: 'alerta'
+    metrics_path: /management/metrics
+    # bearer_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJzdWIiOiI4M2YwYTJkZi1iY2NjLTRlNTYtOGRlYS0wMWJiYmE4MTNkNDkiLCJleHAiOjE0NTQ4NDE4NzIsInByb3ZpZGVyIjoiYmFzaWMiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvIiwiaWF0IjoxNDUzNjMyMjcyLCJsb2dpbiI6ImFkbWluQGFsZXJ0YS5pbyIsIm5hbWUiOiJBbGVydGEgQWRtaW4iLCJhdWQiOiIzNzk2NDczMTE3MzAtc2oxMzBydTk1Mm8zbzdpZzh1MHRzOG5wMm9qaXZyOGQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20ifQ.tAHOgEaZFIOt9wdkXI0iyKjcB7QLG--j4lz7SzrE71A
+    target_groups:
+      - targets: ['localhost:8080']
+
   - job_name: 'collectd'
     honor_labels: true
     target_groups:
@@ -30,4 +36,4 @@ scrape_configs:
       - targets: ['localhost:9100']
 
 rule_files:
-  - rules.yml
+  - rules.conf
