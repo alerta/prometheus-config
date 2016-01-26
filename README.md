@@ -59,6 +59,10 @@ Use the provided `prometheus.yml`, `rules.conf` and `alertmanager.yml` files to 
 
     $ ./prometheus -config.file=prometheus.yml -alertmanager.url=http://localhost:9093
     $ ./alertmanager -config.file=alertmanager.yml
+    
+Prometheus Web => http://localhost:9090
+
+Alertmanager Web => http://localhost:9093
 
 Examples
 --------
