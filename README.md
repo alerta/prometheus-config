@@ -55,9 +55,10 @@ Much more value can be obtained from the Alerta console if reasonable values are
 Run
 ---
 
-Run `prometheus` with Alertmanager config pointing to Apache:
+Use the provided `prometheus.yml`, `rules.conf` and `alertmanager.yml` files to start with and run `prometheus` and `alertmanager` as follows:
 
     $ ./prometheus -config.file=prometheus.yml -alertmanager.url=http://localhost:9093
+    $ ./alertmanager -config.file=alertmanager.yml
 
 Examples
 --------
@@ -126,6 +127,73 @@ global:
     service: 'Prometheus'
     zone: 'eu-west-1'
 ```
+
+Metrics
+-------
+
+Alerta exposes prometheus metrics natively on `/management/metrics` so alerts can be generated based on Alerta performance.
+
+[Counter, Gauge and summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed and all use `alerta` as the application prefix. Metrics are created lazily, so for example, a summary metric for the number of deleted alerts will not be present in the metric output if an alert has never been deleted. Note that counters and summaries are **not** reset when Alerta restarts.
+
+*Example Metrics*
+
+```
+# HELP alerta_alerts_total Total number of alerts in the database
+# TYPE alerta_alerts_total gauge
+alerta_alerts_total 1
+# HELP alerta_alerts_rejected Number of rejected alerts
+# TYPE alerta_alerts_rejected counter
+alerta_alerts_rejected_total 3
+# HELP alerta_alerts_duplicate Total time to process number of duplicate alerts
+# TYPE alerta_alerts_duplicate summary
+alerta_alerts_duplicate_count 339
+alerta_alerts_duplicate_sum 1378
+# HELP alerta_alerts_received Total time to process number of received alerts
+# TYPE alerta_alerts_received summary
+alerta_alerts_received_count 20
+alerta_alerts_received_sum 201
+# HELP alerta_plugins_prereceive Total number of pre-receive plugins
+# TYPE alerta_plugins_prereceive summary
+alerta_plugins_prereceive_count 390
+alerta_plugins_prereceive_sum 10
+# HELP alerta_plugins_postreceive Total number of post-receive plugins
+# TYPE alerta_plugins_postreceive summary
+alerta_plugins_postreceive_count 387
+alerta_plugins_postreceive_sum 3
+# HELP alerta_alerts_create Total time to process number of new alerts
+# TYPE alerta_alerts_create summary
+alerta_alerts_create_count 26
+alerta_alerts_create_sum 85
+# HELP alerta_alerts_queries Total time to process number of alert queries
+# TYPE alerta_alerts_queries summary
+alerta_alerts_queries_count 57357
+alerta_alerts_queries_sum 195402
+# HELP alerta_alerts_deleted Total time to process number of deleted alerts
+# TYPE alerta_alerts_deleted summary
+alerta_alerts_deleted_count 32
+alerta_alerts_deleted_sum 59
+# HELP alerta_alerts_tagged Total time to tag number of alerts
+# TYPE alerta_alerts_tagged summary
+alerta_alerts_tagged_count 1
+alerta_alerts_tagged_sum 4
+# HELP alerta_alerts_untagged Total time to un-tag number of alerts
+# TYPE alerta_alerts_untagged summary
+alerta_alerts_untagged_count 1
+alerta_alerts_untagged_sum 1
+# HELP alerta_alerts_status Total time and number of alerts with status changed
+# TYPE alerta_alerts_status summary
+alerta_alerts_status_count 2
+alerta_alerts_status_sum 3
+# HELP alerta_alerts_webhook Total time to process number of web hook alerts
+# TYPE alerta_alerts_webhook summary
+alerta_alerts_webhook_count 344
+alerta_alerts_webhook_sum 3081
+# HELP alerta_alerts_correlate Total time to process number of correlated alerts
+# TYPE alerta_alerts_correlate summary
+alerta_alerts_correlate_count 23
+alerta_alerts_correlate_sum 69
+```
+
 
 References
 ----------
