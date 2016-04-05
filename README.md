@@ -44,6 +44,19 @@ receivers:
 then the webhook URL will use a host and port specific to your environment and the URL path will be
 `/api/webhooks/prometheus`.
 
+**Example receivers section (if authentication enbabled)**
+
+If Alerta is configured to enforce authentication then the webhook URL needs to include an API key as
+a paramter like so:
+
+```
+receivers:
+- name: "alerta"
+  webhook_configs:
+  - url: 'http://localhost:8080/webhooks/prometheus?api-key=QBPALlsFSkokm-XiOSupkbpK4SJdFBtStfrOjcdG'
+    send_resolved: true
+```
+
 Configuration - Rules
 ---------------------
 
@@ -85,7 +98,7 @@ Use the provided `prometheus.yml`, `rules.conf` and `alertmanager.yml` files to 
 
     $ ./prometheus -config.file=prometheus.yml -alertmanager.url=http://localhost:9093
     $ ./alertmanager -config.file=alertmanager.yml
-    
+
 Prometheus Web => http://localhost:9090
 
 Alertmanager Web => http://localhost:9093
