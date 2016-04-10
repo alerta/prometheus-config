@@ -44,7 +44,7 @@ receivers:
 then the webhook URL will use a host and port specific to your environment and the URL path will be
 `/api/webhooks/prometheus`.
 
-**Example receivers section (if authentication enbabled)**
+**Example receivers section (if authentication enabled)**
 
 If Alerta is configured to enforce authentication then the webhook URL needs to include an API key as
 a paramter like so:
