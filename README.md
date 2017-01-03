@@ -1,8 +1,8 @@
 Prometheus Config for Alerta
 ============================
 
-Consolidate alerts from [Prometheus](http://prometheus.io/) and other tools (like Nagios or Zabbix) into a
-single "at-a-glance" console.
+Consolidate alerts from [Prometheus](http://prometheus.io/) and other
+tools (like Nagios or Zabbix) into a single "at-a-glance" console.
 
 Transform this ...
 
@@ -24,11 +24,12 @@ Install the following:
 Configuration - Alertmanager
 ----------------------------
 
-This integration takes advantage of configurable webhooks available with Prometheus
-[Alertmanager](http://prometheus.io/docs/alerting/alertmanager/).
+This integration takes advantage of configurable webhooks available with
+Prometheus [Alertmanager](http://prometheus.io/docs/alerting/alertmanager/).
 
-Support for Prometheus is built-in to Alerta so no special configuration is required other
-than to ensure the webhook URL is correct in the `alertmanager.yml` config file.
+Support for Prometheus is built-in to Alerta so no special configuration
+is required other than to ensure the webhook URL is correct in the
+`alertmanager.yml` config file.
 
 **Example receivers section**
 
@@ -40,14 +41,14 @@ receivers:
     send_resolved: true
 ```
 
-**Note:** If the [Docker container for Alerta](https://hub.docker.com/r/alerta/alerta-web/) is used
-then the webhook URL will use a host and port specific to your environment and the URL path will be
-`/api/webhooks/prometheus`.
+**Note:** If the [Docker container for Alerta](https://hub.docker.com/r/alerta/alerta-web/)
+is used then the webhook URL will use a host and port specific to
+your environment and the URL path will be `/api/webhooks/prometheus`.
 
 **Example receivers section (if authentication enbabled)**
 
-If Alerta is configured to enforce authentication then the webhook URL needs to include an API key as
-a paramter like so:
+If Alerta is configured to enforce authentication then the webhook
+URL needs to include an API key as a paramter like so:
 
 ```
 receivers:
@@ -60,9 +61,9 @@ receivers:
 Configuration - Rules
 ---------------------
 
-Alertmanager rules define thresholds at which alerts should be triggered. The following table
-illustrates how Prometheus notification data is used to populate Alerta attributes in those triggered
-alerts:
+Alertmanager rules define thresholds at which alerts should be triggered.
+The following table illustrates how Prometheus notification data is
+used to populate Alerta attributes in those triggered alerts:
 
 | **Prometheus**         | Type          | **Alerta**   |
 -------------------------|---------------|---------------
@@ -72,29 +73,30 @@ alerts:
 | severity               | label         | severity (+) |
 | correlate              | label         | correlate    |
 | service                | label         | service      |
-| group                  | label         | group        |
+| job           (*)      | internal      | group        |
 | value                  | label         | value        |
 | description or summary | annotation    | text         |
 | unassigned labels      | label         | tags         |
 | unassigned annotations | annotation    | attributes   |
-| job           (*)      | internal      | origin       |
+| monitor       (*)      | label         | origin       |
+| externalURL   (*)      | internal      | attribute    |
 | generatorlURL (*)      | internal      | moreInfo     |
 | "prometheusAlert"      | n/a           | type         |
 | raw notification       | n/a           | rawData      |
-| customer               | label         | customer     |
 
-Prometheus labels marked with a star (*) are built-in and assignment to Alerta attributes happens
-automatically. All other labels or annotations are user-defined and completely optional as they
-have sensible defaults.
+Prometheus labels marked with a star (*) are built-in and assignment to
+Alerta attributes happens automatically. All other labels or annotations
+are user-defined and completely optional as they have sensible defaults.
 
-Much more value can be obtained from the Alerta console if reasonable values are assigned where
-possible. This is demonstrated in the example alert rules below which get increasingly informative.
+Much more value can be obtained from the Alerta console if reasonable
+values are assigned where possible. This is demonstrated in the example
+alert rules below which get increasingly informative.
 
 Run
 ---
 
-Use the provided `prometheus.yml`, `rules.conf` and `alertmanager.yml` files to start with and run
-`prometheus` and `alertmanager` as follows:
+Use the provided `prometheus.yml`, `rules.conf` and `alertmanager.yml`
+files to start with and run `prometheus` and `alertmanager` as follows:
 
     $ ./prometheus -config.file=prometheus.yml -alertmanager.url=http://localhost:9093
     $ ./alertmanager -config.file=alertmanager.yml
@@ -108,8 +110,8 @@ Examples
 
 *Basic Example*
 
-The example rule below is the absolute minimum required to trigger a "warning" alert and a corresponding
-"normal" alert for forwarding to Alerta.
+The example rule below is the absolute minimum required to trigger a
+"warning" alert and a corresponding "normal" alert for forwarding to Alerta.
 
 ```
 ALERT MinimalAlert
@@ -163,8 +165,9 @@ but it is not mandatory.
 
 Example `prometheus.yml` Global section:
 
-It is possible to set labels that will be used for all alerts that are sent to Alerta. So if your Prometheus
-server is only used for Production or Development or a particular service then you can define these labels
+It is possible to set labels that will be used for all alerts that are
+sent to Alerta. So if your Prometheus server is only used for Production
+or Development or a particular service then you can define these labels
 globally so that you don't have to repeat them for every rule.
 
 ```
@@ -178,13 +181,14 @@ global:
 Metrics
 -------
 
-Alerta exposes prometheus metrics natively on `/management/metrics` so alerts can be generated based on Alerta
-performance.
+Alerta exposes prometheus metrics natively on `/management/metrics` so
+alerts can be generated based on Alerta performance.
 
-[Counter, Gauge and summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed and all use
-`alerta` as the application prefix. Metrics are created lazily, so for example, a summary metric for the number
-of deleted alerts will not be present in the metric output if an alert has never been deleted. Note that counters
-and summaries are **not** reset when Alerta restarts.
+[Counter, Gauge and summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed
+and all use `alerta` as the application prefix. Metrics are created
+lazily, so for example, a summary metric for the number of deleted alerts
+will not be present in the metric output if an alert has never been deleted.
+Note that counters and summaries are **not** reset when Alerta restarts.
 
 *Example Metrics*
 
@@ -249,9 +253,9 @@ alerta_alerts_correlate_sum 69
 References
 ----------
 
-* Kubernetes [namespaces](https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/namespaces.md)
-* Kubernetes [labels](https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/labels.md)
-* Kubernetes [annotations](https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/annotations.md)
+* Kubernetes [namespaces](http://kubernetes.io/docs/user-guide/namespaces/)
+* Kubernetes [labels](http://kubernetes.io/docs/user-guide/labels/)
+* Kubernetes [annotations](http://kubernetes.io/docs/user-guide/annotations/)
 * Kubernetes [metadata](https://github.com/kubernetes/kubernetes/blob/master/docs/devel/api-conventions.md#metadata)
 
 License
