@@ -78,8 +78,8 @@ used to populate Alerta attributes in those triggered alerts:
 | description or summary | annotation    | text         |
 | unassigned labels      | label         | tags         |
 | unassigned annotations | annotation    | attributes   |
-| monitor       (*)      | label         | origin       |
-| externalURL   (*)      | internal      | attribute    |
+| monitor                | label         | origin       |
+| externalURL   (*)      | internal      | externalUrl  |
 | generatorlURL (*)      | internal      | moreInfo     |
 | "prometheusAlert"      | n/a           | type         |
 | raw notification       | n/a           | rawData      |
@@ -139,9 +139,9 @@ ALERT SimpleAlert
 ```
 global:
   external_labels:
-    environment: "Production"
-    service: "Prometheus"
-    region: "eu-west-1"
+    environment: Production
+    service: Prometheus
+    monitor: codelab
 ```
 
 ```
@@ -150,7 +150,6 @@ ALERT CompleteAlert
   LABELS {
     service = "Web",
     severity = "minor",
-    group = "Apache",
     value = "{{$value}}",
   }
   ANNOTATIONS {
@@ -173,9 +172,9 @@ globally so that you don't have to repeat them for every rule.
 ```
 global:
   external_labels:
-    environment: 'Production'
-    service: 'Prometheus'
-    zone: 'eu-west-1'
+    environment: Production
+    service: Prometheus
+    monitor: codelab
 ```
 
 Metrics
@@ -184,7 +183,7 @@ Metrics
 Alerta exposes prometheus metrics natively on `/management/metrics` so
 alerts can be generated based on Alerta performance.
 
-[Counter, Gauge and summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed
+[Counter, Gauge and Summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed
 and all use `alerta` as the application prefix. Metrics are created
 lazily, so for example, a summary metric for the number of deleted alerts
 will not be present in the metric output if an alert has never been deleted.
