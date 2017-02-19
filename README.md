@@ -67,7 +67,7 @@ used to populate Alerta attributes in those triggered alerts:
 
 | **Prometheus**         | Type          | **Alerta**   |
 -------------------------|---------------|---------------
-| instance      (*)      | internal      | resource     |
+| instance      (*)      | internal      | resource *   |
 | alertname     (*)      | internal      | event        |
 | environment            | label         | environment  |
 | severity               | label         | severity (+) |
@@ -87,6 +87,20 @@ used to populate Alerta attributes in those triggered alerts:
 Prometheus labels marked with a star (*) are built-in and assignment to
 Alerta attributes happens automatically. All other labels or annotations
 are user-defined and completely optional as they have sensible defaults.
+
+Be awere that during setting up complex alarms with sum and rate function 
+`instance` and `exported_instance` label can be missed from alarm. So you 
+have to set it up manualy. That way
+```
+ALERT ...rate_too_low 
+  IF sum by (host) (rate(....)) < 10
+  FOR 2m
+  LABELS {
+    value = "{{$value}}",
+    environment = "Production",
+    instance = "{{$labels.host}}"
+  }
+```
 
 Much more value can be obtained from the Alerta console if reasonable
 values are assigned where possible. This is demonstrated in the example
