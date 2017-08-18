@@ -278,4 +278,4 @@ References
 License
 -------
 
-Copyright (c) 2016 Nick Satterly. Available under the MIT License.
+Copyright (c) 2016-2017 Nick Satterly. Available under the MIT License.
