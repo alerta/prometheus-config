@@ -1,0 +1,100 @@
+version: '2.1'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./config:/prometheus
+      - ./data/prometheus:/data
+    command:
+      - '-config.file=/prometheus/prometheus.yml'
+      - '-storage.local.path=/data'
+      - '-alertmanager.url=http://alertmanager:9093'
+    ports:
+      - 9090:9090
+    restart: always
+    networks:
+      - promnet
+
+  node:
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+    restart: always
+    networks:
+      - promnet
+
+  alertmanager:
+    image: prom/alertmanager
+    volumes:
+      - ./config:/prometheus
+      - ./data/alertmanager:/data
+    command:
+      - '-config.file=/prometheus/alertmanager.yml'
+      - '-storage.path=/data'
+    ports:
+      - 9093:9093
+    networks:
+      - promnet
+
+  cadvisor:
+    image: google/cadvisor
+    ports:
+      - 9880:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - promnet
+
+  collectd:
+    image: prom/collectd-exporter
+    ports:
+      - 9103:9103
+    restart: always
+    networks:
+      - promnet
+
+  alerta:
+    image: alerta/alerta-web
+    ports:
+      - 9080:80
+    depends_on:
+      - db
+    environment:
+      - AUTH_REQUIRED=${AUTH_REQUIRED:-False}
+      - ADMIN_USERS=${ADMIN_USERS:-not-set}
+      - CUSTOMER_VIEWS=${CUSTOMER_VIEWS:-False}
+      - PROVIDER=${PROVIDER:-basic}
+      - CLIENT_ID=${CLIENT_ID:-not-set}
+      - CLIENT_SECRET=${CLIENT_SECRET:-not-set}
+      - ALLOWED_EMAIL_DOMAIN=${ALLOWED_EMAIL_DOMAIN:-*}
+      - ALLOWED_GITHUB_ORGS=${ALLOWED_GITHUB_ORGS:-*}
+      - GITLAB_URL=${GITLAB_URL:-not-set}
+      - ALLOWED_GITLAB_GROUPS=${ALLOWED_GITLAB_GROUPS:-*}
+      - PLUGINS=${PLUGINS:-reject,prometheus}
+      - ALERTMANAGER_API_URL=http://alertmanager:9093
+      - ORIGIN_BLACKLIST=${ORIGIN_BLACKLIST:-not-set}
+      - ALLOWED_ENVIRONMENTS=${ALLOWED_ENVIRONMENTS:-Production,Development}
+      - MONGO_URI=mongodb://db:27017/monitoring
+    restart: always
+    networks:
+      - promnet
+      - dbnet
+
+  db:
+    image: mongo
+    volumes:
+      - ./data/mongodb:/data/db
+    restart: always
+    networks:
+      - dbnet
+
+networks:
+  promnet:
+    driver: bridge
+  dbnet:
+    driver: bridge
+
