@@ -115,6 +115,10 @@ files to start with and run `prometheus` and `alertmanager` as follows:
     $ ./prometheus -config.file=prometheus.yml -alertmanager.url=http://localhost:9093
     $ ./alertmanager -config.file=alertmanager.yml
 
+Or if you have Docker installed run:
+
+    $ docker-compose up
+
 Prometheus Web => http://localhost:9090
 
 Alertmanager Web => http://localhost:9093
