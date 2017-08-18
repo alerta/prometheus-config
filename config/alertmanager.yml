@@ -13,5 +13,6 @@ route:
 receivers:
 - name: "alerta"
   webhook_configs:
-  - url: 'http://localhost:8080/webhooks/prometheus'
+  - url: 'http://alerta/api/webhooks/prometheus'
     send_resolved: true
+
