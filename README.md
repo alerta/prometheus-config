@@ -84,13 +84,9 @@ used to populate Alerta attributes in those triggered alerts:
 | "prometheusAlert"      | n/a           | type         |
 | raw notification       | n/a           | rawData      |
 
-Prometheus labels marked with a star (*) are built-in and assignment to
-Alerta attributes happens automatically. All other labels or annotations
-are user-defined and completely optional as they have sensible defaults.
+Prometheus labels marked with a star (*) are built-in and assignment to Alerta attributes happens automatically. All other labels or annotations are user-defined and completely optional as they have sensible defaults.
 
-Be awere that during setting up complex alarms with sum and rate function 
-`instance` and `exported_instance` label can be missed from alarm. So you 
-have to set it up manualy. That way
+Be aware that during setup the complex alarms with sum and rate function `instance` and `exported_instance` labels can be missed from an alarm. These will need to be setup manually with:
 ```
 ALERT ...rate_too_low 
   IF sum by (host) (rate(....)) < 10
@@ -102,12 +98,10 @@ ALERT ...rate_too_low
   }
 ```
 
-Much more value can be obtained from the Alerta console if reasonable
-values are assigned where possible. This is demonstrated in the example
-alert rules below which get increasingly informative.
+Many more values can be obtained from the Alerta console if reasonable values are assigned where possible. This is demonstrated in the example alert rules below. This example shows an increasingly more informative alarm.
 
-Run
----
+Run the example
+---------------
 
 Use the provided `prometheus.yml`, `rules.conf` and `alertmanager.yml`
 files to start with and run `prometheus` and `alertmanager` as follows:
@@ -117,7 +111,7 @@ files to start with and run `prometheus` and `alertmanager` as follows:
 
 Or if you have Docker installed run:
 
-    $ docker-compose up
+    $ docker-compose up -d
 
 Prometheus Web => http://localhost:9090
 
@@ -128,8 +122,7 @@ Examples
 
 *Basic Example*
 
-The example rule below is the absolute minimum required to trigger a
-"warning" alert and a corresponding "normal" alert for forwarding to Alerta.
+The example rule below is the absolute minimum required to trigger a "warning" alert and a corresponding "normal" alert for forwarding to Alerta.
 
 ```
 ALERT MinimalAlert
@@ -178,14 +171,11 @@ ALERT CompleteAlert
 ```
 
 It is desirable that the `prometheus.yml` and `rules.conf` configuration files conform to an expected format
-but it is not mandatory.
+but this is not mandatory.
+
+It is possible to set global labels which will be used for all alerts that are sent to Alerta. For instance, you can label your server with 'Production' or 'Development'. You can also describe the service, like 'Prometheus'.
 
 Example `prometheus.yml` Global section:
-
-It is possible to set labels that will be used for all alerts that are
-sent to Alerta. So if your Prometheus server is only used for Production
-or Development or a particular service then you can define these labels
-globally so that you don't have to repeat them for every rule.
 
 ```
 global:
@@ -198,13 +188,9 @@ global:
 Metrics
 -------
 
-Alerta exposes prometheus metrics natively on `/management/metrics` so
-alerts can be generated based on Alerta performance.
+Alerta exposes prometheus metrics natively on `/management/metrics` so alerts can be generated based on Alerta performance.
 
-[Counter, Gauge and Summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed
-and all use `alerta` as the application prefix. Metrics are created
-lazily, so for example, a summary metric for the number of deleted alerts
-will not be present in the metric output if an alert has never been deleted.
+[Counter, Gauge and Summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed and all use `alerta` as the application prefix. Metrics are created lazily, so for example, a summary metric for the number of deleted alerts will not be present in the metric output if an alert has never been deleted. 
 Note that counters and summaries are **not** reset when Alerta restarts.
 
 *Example Metrics*
