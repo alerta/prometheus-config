@@ -7,9 +7,8 @@ services:
       - ./config:/prometheus
       - ./data/prometheus:/data
     command:
-      - '-config.file=/prometheus/prometheus.yml'
-      - '-storage.local.path=/data'
-      - '-alertmanager.url=http://alertmanager:9093'
+      - '--config.file=/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/data'
     ports:
       - 9090:9090
     restart: always
@@ -30,8 +29,8 @@ services:
       - ./config:/prometheus
       - ./data/alertmanager:/data
     command:
-      - '-config.file=/prometheus/alertmanager.yml'
-      - '-storage.path=/data'
+      - '--config.file=/prometheus/alertmanager.yml'
+      - '--storage.path=/data'
     ports:
       - 9093:9093
     networks:
@@ -60,25 +59,18 @@ services:
   alerta:
     image: alerta/alerta-web
     ports:
-      - 9080:80
+      - 9080:8080
     depends_on:
       - db
     environment:
-      - AUTH_REQUIRED=${AUTH_REQUIRED:-False}
-      - ADMIN_USERS=${ADMIN_USERS:-not-set}
-      - CUSTOMER_VIEWS=${CUSTOMER_VIEWS:-False}
-      - PROVIDER=${PROVIDER:-basic}
-      - CLIENT_ID=${CLIENT_ID:-not-set}
-      - CLIENT_SECRET=${CLIENT_SECRET:-not-set}
+      - DEBUG=1  # remove this line to turn DEBUG off
+      - DATABASE_URL=mongodb://db:27017/monitoring
+      - AUTH_REQUIRED=True
+      - ADMIN_USERS=admin@alerta.io
       - ALLOWED_EMAIL_DOMAIN=${ALLOWED_EMAIL_DOMAIN:-*}
-      - ALLOWED_GITHUB_ORGS=${ALLOWED_GITHUB_ORGS:-*}
-      - GITLAB_URL=${GITLAB_URL:-not-set}
-      - ALLOWED_GITLAB_GROUPS=${ALLOWED_GITLAB_GROUPS:-*}
-      - PLUGINS=${PLUGINS:-reject,prometheus}
+      - PLUGINS=reject,blackout,prometheus
+      - INSTALL_PLUGINS=prometheus
       - ALERTMANAGER_API_URL=http://alertmanager:9093
-      - ORIGIN_BLACKLIST=${ORIGIN_BLACKLIST:-not-set}
-      - ALLOWED_ENVIRONMENTS=${ALLOWED_ENVIRONMENTS:-Production,Development}
-      - MONGO_URI=mongodb://db:27017/monitoring
     restart: always
     networks:
       - promnet
@@ -97,4 +89,3 @@ networks:
     driver: bridge
   dbnet:
     driver: bridge
-

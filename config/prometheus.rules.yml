@@ -1,0 +1,49 @@
+groups:
+- name: ./rules.conf
+  rules:
+  - alert: service_down
+    expr: up == 0
+    labels:
+      severity: major
+      value: '{{$value}}'
+  - alert: service_up
+    expr: up == 1
+    labels:
+      severity: ok
+      value: '{{$value}}'
+  - alert: high_load
+    expr: node_load1 > 0.5
+    annotations:
+      description: '{{ $labels.instance }} of job {{ $labels.job }} is under high
+        load.'
+      summary: Instance {{ $labels.instance }} under high load
+  - alert: ApiRequestsHigh
+    expr: alerta_alerts_total > 1
+    labels:
+      service: Alerta
+      severity: major
+      value: '{{$value}} req/s'
+    annotations:
+      description: API request rate of {{$value}} req/s is high (threshold 3 req/s)
+      runbook: http://
+      summary: API request rate high
+  - alert: Test
+    expr: alerta_alerts_total > 0
+    labels:
+      service: Alerta
+      severity: major
+      value: '{{$value}} req/s'
+    annotations:
+      description: API request rate of {{$value}} req/s is high (threshold 3 req/s)
+      runbook: http://
+      summary: API request rate high
+  - alert: CompleteAlert
+    expr: alerta_alerts_total > 0
+    labels:
+      service: Web
+      severity: minor
+      value: '{{$value}}'
+    annotations:
+      description: complete alert triggered at {{$value}}
+      runbook: http://wiki.alerta.io/runbook/{{$alertname}}
+      summary: alert triggered
