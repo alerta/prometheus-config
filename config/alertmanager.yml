@@ -6,13 +6,16 @@ global:
 route:
   receiver: "alerta"
   group_by: ['alertname']
-  group_wait:      30s
-  group_interval:  5m
-  repeat_interval: 2h
+  group_wait:      15s
+  group_interval:  15s
+  repeat_interval: 1m
 
 receivers:
 - name: "alerta"
   webhook_configs:
-  - url: 'http://alerta/api/webhooks/prometheus'
+  - url: 'http://alerta:8080/api/webhooks/prometheus'
     send_resolved: true
-
+    http_config:
+      basic_auth: 
+        username: admin@alerta.io
+        password: alerta

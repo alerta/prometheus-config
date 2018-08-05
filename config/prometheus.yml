@@ -1,14 +1,22 @@
 # prometheus global config
 global:
   scrape_interval:     15s
-  evaluation_interval: 30s
+  evaluation_interval: 15s
   # scrape_timeout is set to the global default (10s).
 
   external_labels:
     monitor: codelab
     environment: Production
     service: Prometheus
-    region: EU
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - alertmanager:9093
+
+rule_files:
+  - "prometheus.rules.yml"
 
 scrape_configs:
   # metrics_path defaults to '/metrics'
@@ -48,14 +56,3 @@ scrape_configs:
     metrics_path: /api/management/metrics
     static_configs:
     - targets: ['alerta:80']
-
-alerting:
-  alertmanagers:
-  - scheme: http
-    static_configs:
-    - targets:
-      - "alertmanager:9093"
-
-
-rule_files:
-  - "rules.conf"
