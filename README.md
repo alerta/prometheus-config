@@ -17,7 +17,7 @@ Installation
 
 Install the following:
 
-  * Prometheus
+  * Prometheus 2.0
   * Prometheus Alertmanager
   * Alerta
 
@@ -29,9 +29,9 @@ Prometheus [Alertmanager](http://prometheus.io/docs/alerting/alertmanager/).
 
 Support for Prometheus is built-in to Alerta so no special configuration
 is required other than to ensure the webhook URL is correct in the
-`alertmanager.yml` config file.
+Alertmanager config file.
 
-**Example receivers section**
+**Example `alertmanager.yml` receivers section**
 
 ```
 receivers:
@@ -45,10 +45,28 @@ receivers:
 is used then the webhook URL will use a host and port specific to
 your environment and the URL path will be `/api/webhooks/prometheus`.
 
-**Example receivers section (if authentication enabled)**
+### Authentication
 
-If Alerta is configured to enforce authentication then the webhook
-URL needs to include an API key as a paramter like so:
+If Alerta is configured to enforce authentication then the receivers
+section should define BasicAuth username and password or the webhook
+URL should include an API key. Bearer tokens are not recommended for
+authenticating external systems with Alerta.
+
+**Example `alertmanager.yml` receivers section with BasicAuth**
+
+```
+receivers:
+- name: "alerta"
+  webhook_configs:
+  - url: 'http://alerta:8080/api/webhooks/prometheus'
+    send_resolved: true
+    http_config:
+      basic_auth:
+        username: admin@alerta.io
+        password: alerta
+```
+
+**Example `alertmanager.yml` receivers section with API Key**
 
 ```
 receivers:
@@ -67,44 +85,58 @@ used to populate Alerta attributes in those triggered alerts:
 
 | **Prometheus**         | Type          | **Alerta**   |
 -------------------------|---------------|---------------
-| instance      (*)      | internal      | resource *   |
-| alertname     (*)      | internal      | event        |
+| instance           (*) | internal      | resource     |
+| alertname          (*) | internal      | event        |
 | environment            | label         | environment  |
 | severity               | label         | severity (+) |
 | correlate              | label         | correlate    |
 | service                | label         | service      |
-| job           (*)      | internal      | group        |
-| value                  | label         | value        |
+| job                (*) | internal      | group        |
+| value                  | annotation    | value        |
 | description or summary | annotation    | text         |
 | unassigned labels      | label         | tags         |
 | unassigned annotations | annotation    | attributes   |
-| monitor                | label         | origin       |
-| externalURL   (*)      | internal      | externalUrl  |
-| generatorlURL (*)      | internal      | moreInfo     |
+| monitor            (*) | label         | origin       |
+| externalURL        (*) | internal      | externalUrl  |
+| generatorlURL      (*) | internal      | moreInfo     |
 | "prometheusAlert"      | n/a           | type         |
 | raw notification       | n/a           | rawData      |
 
-Prometheus labels marked with a star (*) are built-in and assignment to Alerta attributes happens automatically. All other labels or annotations are user-defined and completely optional as they have sensible defaults.
+Note: `value` has changed from a `label` to an `annotation`.
 
-Be aware that during setup the complex alarms with sum and rate function `instance` and `exported_instance` labels can be missed from an alarm. These will need to be setup manually with:
+Prometheus labels marked with a star (*) are built-in and assignment
+to Alerta attributes happens automatically. All other labels or
+annotations are user-defined and completely optional as they have
+sensible defaults.
+
+**Note:** Be aware that during setup the complex alarms with sum
+and rate function `instance` and `exported_instance` labels can
+be missed from an alarm. These will need to be setup manually with:
+
 ```
-ALERT ...rate_too_low 
-  IF sum by (host) (rate(....)) < 10
-  FOR 2m
-  LABELS {
-    value = "{{$value}}",
-    environment = "Production",
-    instance = "{{$labels.host}}"
-  }
+- alert: rate_too_low
+  expr: sum by(host) (rate(foo[5m])) < 10
+  for: 2m
+  labels:
+    environment: Production
+    instance: '{{$labels.host}}'  # <== instance added to labels manually
+  annotations:
+    value: '{{$value}}'
 ```
 
-Many more values can be obtained from the Alerta console if reasonable values are assigned where possible. This is demonstrated in the example alert rules below. This example shows an increasingly more informative alarm.
+Many more values can be obtained from the Alerta console if reasonable
+values are assigned where possible. This is demonstrated in the
+example alert rules below. This example shows an increasingly more
+informative alarm.
 
-Run the example
----------------
+Examples
+--------
 
-Use the provided `prometheus.yml`, `rules.conf` and `alertmanager.yml`
-files to start with and run `prometheus` and `alertmanager` as follows:
+### Run the Examples
+
+Use the provided `prometheus.yml`, `prometheus.rules.yml` and `alertmanager.yml`
+files in the `/example` directory to start with and run `prometheus` and
+`alertmanager` as follows:
 
     $ ./prometheus -config.file=prometheus.yml -alertmanager.url=http://localhost:9093
     $ ./alertmanager -config.file=alertmanager.yml
@@ -117,36 +149,37 @@ Prometheus Web => http://localhost:9090
 
 Alertmanager Web => http://localhost:9093
 
-Examples
---------
-
 *Basic Example*
 
-The example rule below is the absolute minimum required to trigger a "warning" alert and a corresponding "normal" alert for forwarding to Alerta.
+The example rule below is the absolute minimum required to trigger a
+"warning" alert and a corresponding "normal" alert for forwarding to
+Alerta.
 
 ```
-ALERT MinimalAlert
-  IF metric > 0
-  LABELS {}
+- alert: MinimalAlert
+  expr: metric > 0
 ```
 
 *Simple Example*
 
+This example sets the severity to `major` and defines a description to
+be used as the alert text.
+
 ```
-ALERT SimpleAlert
-  IF metric > 0
-  LABELS {
-    service = "Web",
-    severity = "major",
-    value = "{{$value}}"
-  }
-  ANNOTATIONS {
-    description = "simple alert triggered at {{$value}}"
-  }
+- alert: SimpleAlert
+  expr: metric > 0
+  labels:
+    severity: major
+  annotations:
+    description: simple alert triggered at {{$value}}
 ```
 
-*Complete Example*
+*Complex Example*
 
+A more complex example where `external_labels` defined globally
+are used to populate common alert attributes like `environment`,
+`service` and `monitor` (used by `origin`). The alert value is set
+using the `$value` label.
 ```
 global:
   external_labels:
@@ -156,24 +189,45 @@ global:
 ```
 
 ```
-ALERT CompleteAlert
-  IF metric > 0
-  LABELS {
-    service = "Web",
-    severity = "minor",
-    value = "{{$value}}",
-  }
-  ANNOTATIONS {
-    summary = "alert triggered",
-    description = "complete alert triggered at {{$value}}",
-    runbook = "http://wiki.alerta.io"
-  }
+- alert: CompleteAlert
+  expr: metric > 0
+  labels:
+    severity: minor
+  annotations:
+    description: complete alert triggered at {{$value}}
+    value: '{{ $value }}'
+    runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
 ```
 
-It is desirable that the `prometheus.yml` and `rules.conf` configuration files conform to an expected format
-but this is not mandatory.
+*Complex Example using Correlation*
 
-It is possible to set global labels which will be used for all alerts that are sent to Alerta. For instance, you can label your server with 'Production' or 'Development'. You can also describe the service, like 'Prometheus'.
+```
+- alert: NodeDown
+  expr: up == 0
+  labels:
+    severity: minor
+    correlate: NodeUp,NodeDown
+  annotations:
+    description: Node is down.
+    runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
+- alert: NodeUp
+  expr: up == 1
+  labels:
+    severity: ok
+    correlate: NodeUp,NodeDown
+  annotations:
+    description: Node is up.
+    runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
+```
+
+It is desirable that the `prometheus.yml` and `prometheus.rules.yml`
+configuration files conform to an expected format but this is not
+mandatory.
+
+It is possible to set global labels which will be used for all alerts
+that are sent to Alerta. For instance, you can label your server with
+'Production' or 'Development'. You can also describe the service, like
+'Prometheus'.
 
 Example `prometheus.yml` Global section:
 
@@ -188,10 +242,15 @@ global:
 Metrics
 -------
 
-Alerta exposes prometheus metrics natively on `/management/metrics` so alerts can be generated based on Alerta performance.
+Alerta exposes prometheus metrics natively on `/management/metrics` so
+alerts can be generated based on Alerta performance.
 
-[Counter, Gauge and Summary metrics](http://prometheus.io/docs/concepts/metric_types/) are exposed and all use `alerta` as the application prefix. Metrics are created lazily, so for example, a summary metric for the number of deleted alerts will not be present in the metric output if an alert has never been deleted. 
-Note that counters and summaries are **not** reset when Alerta restarts.
+[Counter, Gauge and Summary metrics](http://prometheus.io/docs/concepts/metric_types/)
+are exposed and all use `alerta` as the application prefix. Metrics are
+created lazily, so for example, a summary metric for the number of deleted
+alerts will not be present in the metric output if an alert has never
+been deleted. Note that counters and summaries are **not** reset when
+Alerta restarts.
 
 *Example Metrics*
 
@@ -264,4 +323,4 @@ References
 License
 -------
 
-Copyright (c) 2016-2017 Nick Satterly. Available under the MIT License.
+Copyright (c) 2016-2018 Nick Satterly. Available under the MIT License.
