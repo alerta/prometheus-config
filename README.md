@@ -258,7 +258,7 @@ receivers:
 ```
   # system load alert
   - alert: load_vhigh
-    expr: node_load1 > 0.7
+    expr: node_load1 >= 0.7
     labels:
       severity: major
       correlate: load_vhigh,load_high,load_ok
@@ -266,7 +266,7 @@ receivers:
       description: '{{ $labels.instance }} of job {{ $labels.job }} is under very high load.'
       value: '{{ $value }}'
   - alert: load_high
-    expr: node_load1 > 0.5 and node_load1 < 0.7
+    expr: node_load1 >= 0.5 and node_load1 < 0.7
     labels:
       severity: warning
       correlate: load_vhigh,load_high,load_ok
@@ -283,9 +283,9 @@ receivers:
       value: '{{ $value }}'
 ```
 
-**Note:** The "warning" rule expression needs to bracket the
-`node_load1` metric value between the "critical" and the "normal"
-values ie. `node_load1 > 0.5 and node_load1 < 0.7`
+**Note:** The "load_high" rule expression needs to bracket the
+`node_load1` metric value between the "load_vhigh" and the "load_ok"
+values ie. `expr: node_load1 >= 0.5 and node_load1 < 0.7`
 
 Metrics
 -------
