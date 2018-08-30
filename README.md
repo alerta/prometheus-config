@@ -264,7 +264,6 @@ receivers:
       correlate: load_vhigh,load_high,load_ok
     annotations:
       description: '{{ $labels.instance }} of job {{ $labels.job }} is under very high load.'
-      summary: Instance {{ $labels.instance }} under high load
       value: '{{ $value }}'
   - alert: load_high
     expr: node_load1 > 0.5 and node_load1 < 0.7
@@ -273,7 +272,6 @@ receivers:
       correlate: load_vhigh,load_high,load_ok
     annotations:
       description: '{{ $labels.instance }} of job {{ $labels.job }} is under high load.'
-      summary: Instance {{ $labels.instance }} under high load
       value: '{{ $value }}'
   - alert: load_ok
     expr: node_load1 < 0.5
@@ -282,7 +280,6 @@ receivers:
       correlate: load_vhigh,load_high,load_ok
     annotations:
       description: '{{ $labels.instance }} of job {{ $labels.job }} is under normal load.'
-      summary: Instance {{ $labels.instance }} under high load
       value: '{{ $value }}'
 ```
 
