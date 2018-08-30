@@ -149,7 +149,7 @@ Prometheus Web => http://localhost:9090
 
 Alertmanager Web => http://localhost:9093
 
-*Basic Example*
+### Basic Example
 
 The example rule below is the absolute minimum required to trigger a
 "warning" alert and a corresponding "normal" alert for forwarding to
@@ -160,7 +160,7 @@ Alerta.
   expr: metric > 0
 ```
 
-*Simple Example*
+### Simple Example
 
 This example sets the severity to `major` and defines a description to
 be used as the alert text.
@@ -174,7 +174,7 @@ be used as the alert text.
     description: simple alert triggered at {{$value}}
 ```
 
-*Complex Example*
+### Complex Example
 
 A more complex example where `external_labels` defined globally
 are used to populate common alert attributes like `environment`,
@@ -199,7 +199,7 @@ global:
     runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
 ```
 
-*Complex Example using Correlation*
+### Complex Example using Correlation
 
 ```
 - alert: NodeDown
@@ -239,7 +239,7 @@ global:
     monitor: codelab
 ```
 
-*Complex Example using Correlation without Resolve*
+### Complex Example using Correlation without Resolve
 
 **Example `alertmanager.yml` with `send_resolve` disabled**
 ```
