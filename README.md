@@ -195,7 +195,7 @@ global:
     severity: minor
   annotations:
     description: complete alert triggered at {{$value}}
-    value: '{{ $value }}'
+    value: '{{ humanize $value }} req/s'
     runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
 ```
 
@@ -238,6 +238,57 @@ global:
     service: Prometheus
     monitor: codelab
 ```
+
+*Complex Example using Correlation without Resolve*
+
+**Example `alertmanager.yml` with `send_resolve` disabled**
+```
+receivers:
+- name: "alerta"
+  webhook_configs:
+  - url: 'http://alerta:8080/api/webhooks/prometheus'
+    send_resolved: false
+    http_config:
+      basic_auth:
+        username: admin@alerta.io
+        password: alerta
+```
+
+**Example `prometheus.rules.yml` with explicit "normal" rule**
+```
+  # system load alert
+  - alert: load_vhigh
+    expr: node_load1 > 0.7
+    labels:
+      severity: major
+      correlate: load_vhigh,load_high,load_ok
+    annotations:
+      description: '{{ $labels.instance }} of job {{ $labels.job }} is under very high load.'
+      summary: Instance {{ $labels.instance }} under high load
+      value: '{{ $value }}'
+  - alert: load_high
+    expr: node_load1 > 0.5 and node_load1 < 0.7
+    labels:
+      severity: warning
+      correlate: load_vhigh,load_high,load_ok
+    annotations:
+      description: '{{ $labels.instance }} of job {{ $labels.job }} is under high load.'
+      summary: Instance {{ $labels.instance }} under high load
+      value: '{{ $value }}'
+  - alert: load_ok
+    expr: node_load1 < 0.5
+    labels:
+      severity: normal
+      correlate: load_vhigh,load_high,load_ok
+    annotations:
+      description: '{{ $labels.instance }} of job {{ $labels.job }} is under normal load.'
+      summary: Instance {{ $labels.instance }} under high load
+      value: '{{ $value }}'
+```
+
+**Note:** The "warning" rule expression needs to bracket the
+`node_load1` metric value between the "critical" and the "normal"
+values ie. `node_load1 > 0.5 and node_load1 < 0.7`
 
 Metrics
 -------
