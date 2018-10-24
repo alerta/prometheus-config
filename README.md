@@ -79,7 +79,7 @@ receivers:
 Configuration - Rules
 ---------------------
 
-Alertmanager rules define thresholds at which alerts should be triggered.
+Prometheus rules define thresholds at which alerts should be triggered.
 The following table illustrates how Prometheus notification data is
 used to populate Alerta attributes in those triggered alerts:
 
