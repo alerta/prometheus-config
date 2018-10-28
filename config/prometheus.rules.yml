@@ -11,7 +11,8 @@ groups:
     annotations:
       description: Service {{ $labels.instance }} is unavailable.
       value: DOWN ({{ $value }})
-      runbookUrl: http://wiki.alerta.io/RunBook/Event/ServiceDown
+      runbook: http://wiki.alerta.io/RunBook/Event/ServiceDown  # must hardcode URL as $labels.alertname not supported here
+
   - alert: service_up
     expr: up == 1
     labels:
