@@ -11,14 +11,8 @@ services:
       - '--storage.tsdb.path=/data'
     ports:
       - 9090:9090
-    restart: always
-    networks:
-      - promnet
-
-  node:
-    image: prom/node-exporter
-    ports:
-      - 9100:9100
+    depends_on:
+      - alertmanager
     restart: always
     networks:
       - promnet
@@ -33,6 +27,14 @@ services:
       - '--storage.path=/data'
     ports:
       - 9093:9093
+    networks:
+      - promnet
+
+  node:
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+    restart: always
     networks:
       - promnet
 
@@ -65,7 +67,7 @@ services:
     environment:
       - DEBUG=1  # remove this line to turn DEBUG off
       - DATABASE_URL=mongodb://db:27017/monitoring
-      - AUTH_REQUIRED=True
+      - AUTH_REQUIRED=False
       - ADMIN_USERS=admin@alerta.io
       - ALLOWED_EMAIL_DOMAIN=${ALLOWED_EMAIL_DOMAIN:-*}
       - PLUGINS=reject,blackout,prometheus

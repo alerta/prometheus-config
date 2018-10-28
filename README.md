@@ -196,7 +196,6 @@ global:
   annotations:
     description: complete alert triggered at {{$value}}
     value: '{{ humanize $value }} req/s'
-    runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
 ```
 
 ### Complex Example using Correlation
@@ -209,7 +208,6 @@ global:
     correlate: NodeUp,NodeDown
   annotations:
     description: Node is down.
-    runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
 - alert: NodeUp
   expr: up == 1
   labels:
@@ -217,7 +215,6 @@ global:
     correlate: NodeUp,NodeDown
   annotations:
     description: Node is up.
-    runbookUrl: http://runbook.alerta.io/Event/{{ $labels.alertname }}
 ```
 
 It is desirable that the `prometheus.yml` and `prometheus.rules.yml`
