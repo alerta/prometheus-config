@@ -11,7 +11,7 @@ groups:
     annotations:
       description: Service {{ $labels.instance }} is unavailable.
       value: DOWN ({{ $value }})
-      runbook: http://wiki.alerta.io/RunBook/Event/ServiceDown  # must hardcode URL as $labels.alertname not supported here
+      runbook: http://wiki.alerta.io/RunBook/{app}/Event/{alertname}
 
   - alert: service_up
     expr: up == 1
@@ -31,11 +31,20 @@ groups:
       summary: Instance {{ $labels.instance }} under high load
       value: '{{ $value }}'
 
-  # disk space alert
+  # disk space alert (with resource=<instance>:<mountpoint> event=disk_space
   - alert: disk_space
     expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) * 100 / node_filesystem_size_bytes > 5
     labels:
       instance: '{{ $labels.instance }}:{{ $labels.mountpoint }}'
+    annotations:
+      value: '{{ humanize $value }}%'
+
+  # disk space alert (with resource=<instance> event=disk_util:<mountpoint>
+  - alert: disk_util
+    expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) * 100 / node_filesystem_size_bytes > 5
+    labels:
+      instance: '{{ $labels.instance }}'
+      event: '{alertname}:{{ $labels.mountpoint }}'  # python templating rendered by Alerta
     annotations:
       value: '{{ humanize $value }}%'
 

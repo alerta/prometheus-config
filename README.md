@@ -85,20 +85,20 @@ used to populate Alerta attributes in those triggered alerts:
 
 | **Prometheus**         | Type          | **Alerta**   |
 -------------------------|---------------|---------------
-| instance           (*) | internal      | resource     |
-| alertname          (*) | internal      | event        |
+| instance (*)           | internal      | resource     |
+| event or alertname (*) | label/internal| event        |
 | environment            | label         | environment  |
 | severity               | label         | severity (+) |
 | correlate              | label         | correlate    |
 | service                | label         | service      |
-| job                (*) | internal      | group        |
+| job (*)                | internal      | group        |
 | value                  | annotation    | value        |
 | description or summary | annotation    | text         |
 | unassigned labels      | label         | tags         |
 | unassigned annotations | annotation    | attributes   |
-| monitor            (*) | label         | origin       |
-| externalURL        (*) | internal      | externalUrl  |
-| generatorlURL      (*) | internal      | moreInfo     |
+| monitor (*)            | label         | origin       |
+| externalURL (*)        | internal      | externalUrl  |
+| generatorlURL (*)      | internal      | moreInfo     |
 | "prometheusAlert"      | n/a           | type         |
 | raw notification       | n/a           | rawData      |
 
@@ -109,8 +109,10 @@ to Alerta attributes happens automatically. All other labels or
 annotations are user-defined and completely optional as they have
 sensible defaults.
 
-**Note:** Be aware that during setup the complex alarms with sum
-and rate function `instance` and `exported_instance` labels can
+### Missing Instance Labels
+
+Note that during configuration of complex alarms with sum
+and rate function the `instance` and `exported_instance` labels can
 be missed from an alarm. These will need to be setup manually with:
 
 ```
@@ -124,15 +126,74 @@ be missed from an alarm. These will need to be setup manually with:
     value: '{{$value}}'
 ```
 
-Many more values can be obtained from the Alerta console if reasonable
-values are assigned where possible. This is demonstrated in the
-example alert rules below. This example shows an increasingly more
-informative alarm.
+### Using `event` or `alertname`
+
+By default the `alertname` label is used to populate the `event` attribute. However,
+there are times where this simple 1-to-1 mapping is not sufficient and the event
+needs to include other information, like filesystem mountpoints, to ensure that
+alerts for different resources aren't incorrectly deduplicated.
+
+It is therefore possible to define an `event` label which will be used instead of
+the `alertname`. The `event` label can include the `alertname` plus other
+information if required.
+
+### Python Format Syntax in Rules
+
+Regretably it isn't possible to refer to `alertname`[[1]],
+external labels [[2]], or labels in annotations [[3]]
+ [[4]]. These limitations are due to design decisions which
+are [not going to change in the forseeable future][5]
+yet make integration with Prometheus via generic webhooks very difficult
+beyond extremely simple use cases [[6]] [[7]] [[8]] [[9]].
+
+[1]: https://github.com/prometheus/prometheus/issues/2818
+[2]: https://github.com/prometheus/prometheus/issues/3043
+[3]: https://github.com/prometheus/prometheus/issues/2454
+[4]: https://github.com/prometheus/prometheus/issues/2992
+[5]: https://github.com/prometheus/prometheus/issues/2818
+[6]: https://github.com/prometheus/alertmanager/issues/1496
+[7]: https://github.com/prometheus/alertmanager/pull/1422
+[8]: https://github.com/prometheus/alertmanager/issues/684
+[9]: https://github.com/prometheus/alertmanager/issues/1400
+
+The work-around developed for Alerta is to allow Prometheus rules to contain
+python format syntax that can refer to labels anywhere in a rule, ie. in either
+another label or an annotation, and then pre-parse the labels and annotations
+when receiving a Prometheus alert before processing it as normal. Like so:
+
+```
+  labels:
+    foo: bar
+    baz: {foo}
+  annotations:
+    quux: the foo is {foo} and the baz is {baz}
+```
+
+This will be interpreted as:
+
+```
+  labels:
+    foo: bar
+    baz: bar
+  annotations:
+    quux: the foo is bar and the baz is bar
+```
+
+This makes refering to labels in annotations to create things like dynamic
+"runbook" URLs very straight-forward. An example the does this can be found
+under the heading "Python Format Template Example" below.
 
 Examples
 --------
 
-### Run the Examples
+Many Prometheus values can be used to populate attributes in Alerta alerts
+to enrich the available alert information if reasonable values are assigned
+where possible.
+
+This is demonstrated in the example alert rules below, which become increasingly
+more informative.
+
+### Testing the examples
 
 Use the provided `prometheus.yml`, `prometheus.rules.yml` and `alertmanager.yml`
 files in the `/example` directory to start with and run `prometheus` and
@@ -172,6 +233,22 @@ be used as the alert text.
     severity: major
   annotations:
     description: simple alert triggered at {{$value}}
+```
+
+### Python Format Template Example
+
+This example uses [python string format syntax](https://docs.python.org/3.4/library/string.html#format-string-syntax)
+(ie. curly braces `{}`) to template the values for `app` (in `runbook`) and `alertname` (in `event` and `runbook`).
+
+```
+- alert: TemplateAlert
+  expr: metric > 0
+  labels:
+    event: {alertname}:{{ $labels.mountpoint }}
+    severity: major
+  annotations:
+    description: simple alert triggered at {{$value}}
+    runbook: https://internal.myorg.net/wiki/alerts/{app}/{alertname}
 ```
 
 ### Complex Example
