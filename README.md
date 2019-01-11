@@ -88,6 +88,7 @@ used to populate Alerta attributes in those triggered alerts:
 | instance (*)           | internal      | resource     |
 | event or alertname (*) | label/internal| event        |
 | environment            | label         | environment  |
+| customer               | label         | customer     |
 | severity               | label         | severity (+) |
 | correlate              | label         | correlate    |
 | service                | label         | service      |
