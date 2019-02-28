@@ -92,7 +92,7 @@ used to populate Alerta attributes in those triggered alerts:
 | severity               | label         | severity (+) |
 | correlate              | label         | correlate    |
 | service                | label         | service      |
-| job (*)                | internal      | group        |
+| group or job (*)       | label/internal| group        |
 | value                  | annotation    | value        |
 | description or summary | annotation    | text         |
 | unassigned labels      | label         | tags         |
