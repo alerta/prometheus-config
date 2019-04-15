@@ -10,7 +10,7 @@ Transform this ...
 
 Into this ...
 
-![alerta](/docs/images/prometheus-alerta.png?raw=true)
+![alerta](/docs/images/alerta-webui-v7.jpg?raw=true)
 
 Installation
 ------------
