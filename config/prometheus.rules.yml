@@ -1,6 +1,13 @@
 groups:
 - name: ./rules.conf
   rules:
+
+  # heartbeat alert
+  - alert: Heartbeat
+    expr: vector(1)
+    labels:
+      severity: informational
+
   # service availability alert
   - alert: service_down
     expr: up == 0

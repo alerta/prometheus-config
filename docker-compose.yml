@@ -70,7 +70,7 @@ services:
       - AUTH_REQUIRED=False
       - ADMIN_USERS=admin@alerta.io
       - ALLOWED_EMAIL_DOMAIN=${ALLOWED_EMAIL_DOMAIN:-*}
-      - PLUGINS=reject,blackout,prometheus
+      - PLUGINS=reject,heartbeat,blackout,prometheus
       - INSTALL_PLUGINS=prometheus
       - ALERTMANAGER_API_URL=http://alertmanager:9093
     restart: always
