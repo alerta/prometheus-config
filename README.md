@@ -102,6 +102,7 @@ used to populate Alerta attributes in those triggered alerts:
 | generatorlURL (*)      | internal      | moreInfo     |
 | "prometheusAlert"      | n/a           | type         |
 | raw notification       | n/a           | rawData      |
+| timeout (\*\*)         | label         | timeout      |
 
 Note: `value` has changed from a `label` to an `annotation`.
 
@@ -109,6 +110,8 @@ Prometheus labels marked with a star (*) are built-in and assignment
 to Alerta attributes happens automatically. All other labels or
 annotations are user-defined and completely optional as they have
 sensible defaults.
+
+Prometheus label timeout use default value 0 if not exists.
 
 ### Missing Instance Labels
 
