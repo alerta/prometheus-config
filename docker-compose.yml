@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.1'
 
 services:
   prometheus:
@@ -67,11 +67,9 @@ services:
     environment:
       - DEBUG=1  # remove this line to turn DEBUG off
       - DATABASE_URL=mongodb://db:27017/monitoring
-      - AUTH_REQUIRED=False
+      # - AUTH_REQUIRED=True
       - ADMIN_USERS=admin@alerta.io
-      - ALLOWED_EMAIL_DOMAIN=${ALLOWED_EMAIL_DOMAIN:-*}
-      - PLUGINS=reject,heartbeat,blackout,prometheus
-      - INSTALL_PLUGINS=prometheus
+      - PLUGINS=remote_ip,reject,heartbeat,blackout,prometheus
       - ALERTMANAGER_API_URL=http://alertmanager:9093
     restart: always
     networks:
