@@ -1,0 +1,29 @@
+name: Weekly integration test
+
+on:
+  schedule:
+    - cron: '0 19 * * 3'
+
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: act10ns/slack@v1
+        with: 
+          status: starting
+          channel: '#workflows'
+        if: always()
+      - uses: actions/checkout@v2
+      - name: Smoke tests
+        id: smoketest
+        run: |
+          docker-compose -f docker-compose.ci.yml up --exit-code-from tester
+      - uses: act10ns/slack@v1
+        with: 
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#workflows'
+        if: always()

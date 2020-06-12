@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  sut:
+    image: alerta/alerta-web
+    ports:
+      - 8080
+    depends_on:
+      - db
+    environment:
+      # - DEBUG=1  # remove this line to turn DEBUG off
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/monitoring
+      - AUTH_REQUIRED=True
+      - ADMIN_USERS=admin@alerta.io,devops@alerta.io # default password: alerta
+      - ADMIN_KEY=demo-key
+      - ADMIN_KEY_MAXAGE=31536000 # 1 year in seconds
+      - PLUGINS=reject,blackout,normalise,enhance
+
+  tester:
+    image: tutum/curl:latest
+    volumes:
+      - ./wait-for-it.sh:/usr/local/bin/wait-for-it.sh
+      - ./tests.sh:/tests.sh
+    depends_on:
+      - sut
+    command: ["wait-for-it.sh", "sut:8080", "-t", "240", "--", "sh", "/tests.sh"]
+
+  db:
+    image: postgres
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: monitoring
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
