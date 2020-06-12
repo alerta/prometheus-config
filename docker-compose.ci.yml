@@ -1,6 +1,35 @@
 version: '3'
 
 services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./config:/prometheus
+      - ./data/prometheus:/data
+    command:
+      - '--config.file=/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/data'
+    ports:
+      - 9090:9090
+    depends_on:
+      - alertmanager
+    restart: always
+    networks:
+      - promnet
+
+  alertmanager:
+    image: prom/alertmanager
+    volumes:
+      - ./config:/prometheus
+      - ./data/alertmanager:/data
+    command:
+      - '--config.file=/prometheus/alertmanager.yml'
+      - '--storage.path=/data'
+    ports:
+      - 9093:9093
+    networks:
+      - promnet
+
   sut:
     image: alerta/alerta-web
     ports:
@@ -15,6 +44,8 @@ services:
       - ADMIN_KEY=demo-key
       - ADMIN_KEY_MAXAGE=31536000 # 1 year in seconds
       - PLUGINS=reject,blackout,normalise,enhance
+      networks:
+        - promnet
 
   tester:
     image: tutum/curl:latest
@@ -24,6 +55,8 @@ services:
     depends_on:
       - sut
     command: ["wait-for-it.sh", "sut:8080", "-t", "240", "--", "sh", "/tests.sh"]
+    networks:
+      - promnet
 
   db:
     image: postgres
@@ -33,3 +66,6 @@ services:
       POSTGRES_DB: monitoring
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    networks:
+      - promnet
+      
