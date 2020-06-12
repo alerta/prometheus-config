@@ -44,8 +44,8 @@ services:
       - ADMIN_KEY=demo-key
       - ADMIN_KEY_MAXAGE=31536000 # 1 year in seconds
       - PLUGINS=reject,blackout,normalise,enhance
-      networks:
-        - promnet
+    networks:
+      - promnet
 
   tester:
     image: tutum/curl:latest
@@ -68,4 +68,7 @@ services:
       POSTGRES_PASSWORD: postgres
     networks:
       - promnet
-      
+
+networks:
+  promnet:
+    driver: bridge
