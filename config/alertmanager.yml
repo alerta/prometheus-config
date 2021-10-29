@@ -9,6 +9,11 @@ route:
   group_wait:      15s
   group_interval:  15s
   repeat_interval: 1m
+  routes:
+  - receiver: alerta_no_resolve
+    repeat_interval: 1m
+    matchers: ["event = Heartbeat"]
+
 
 receivers:
 - name: "alerta"
@@ -19,3 +24,12 @@ receivers:
       basic_auth: 
         username: admin@alerta.io
         password: alerta
+- name: "alerta_no_resolve"
+  webhook_configs:
+  - url: 'http://alerta:8080/api/webhooks/prometheus'
+    send_resolved: false
+    http_config:
+      basic_auth:
+        username: admin@alerta.io
+        password: alerta
+
