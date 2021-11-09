@@ -6,7 +6,14 @@ groups:
   - alert: Heartbeat
     expr: vector(1)
     labels:
-      severity: informational
+      event: "Heartbeat"
+      instance: "prometheus"
+      monitor: "prometheus"
+      severity: "major"
+      timeout: "120"
+    annotations:
+      summary: "Heartbeat from prometheus"
+      description: "Heartbeat from from prometheus"
 
   # service availability alert
   - alert: service_down
@@ -65,3 +72,4 @@ groups:
       description: API request rate of {{ $value | printf "%.1f" }} req/s is high (threshold 5 req/s)
       summary: API request rate high
       value: '{{ humanize $value }} req/s'
+
